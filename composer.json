@@ -1,5 +1,6 @@
 {
     "require": {
-        "neomerx/json-api": "0.8.*"
+        "neomerx/json-api": "0.8.*",
+        "fabpot/goutte": "^3.2"
     }
 }
