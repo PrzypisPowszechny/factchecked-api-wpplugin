@@ -106,7 +106,7 @@ function extract_sources_page() {
 
 
 function locate_statements_page() {
-    $posts_per_page = isset($_GET['posts_per_page']) ? intval($_GET['posts_per_page']) : 50;
+    $posts_per_page = isset($_GET['posts_per_page']) ? intval($_GET['posts_per_page']) : 10;
     $paged = isset($_GET['paged']) ? intval($_GET['paged']) : 1;
     $the_query = new WP_Query(array(
         'post_type' => 'dmg_statements',
@@ -116,6 +116,7 @@ function locate_statements_page() {
 
     echo "<p>Lokalizowanie wypowiedzi na stronach źródłowych:</p>";
 
+    $stats_statements_num = 0;
     $stats_located = 0;
     $stats_to_be_located = 0;
     $stats_no_source = 0;
@@ -130,6 +131,7 @@ function locate_statements_page() {
 
         $politic_statement_pos = -1;
         while(have_rows('politic_statement')) {
+            $stats_statements_num++;
             $politic_statement_pos++;
             the_row();
             $statement = get_sub_field('statement_content', false);
@@ -167,7 +169,7 @@ function locate_statements_page() {
             try {
                 $located_statement = get_located_statement($statement_unmodified, $source_url);
             } catch (URLFetchingException $e) {
-                echo "<span style='color:blue;padding-left:15px;'>Nie udało się pobrać treści strony źródłowej, pomijam</span><br/>";
+                echo "<span style='color:blue;padding-left:15px;'>Nie udało się pobrać treści strony źródłowej, pomijam. Powód: {$e}</span><br/>";
                 $stats_non_browsable++;
                 continue;
             }
@@ -199,9 +201,10 @@ function locate_statements_page() {
         echo '</p>';
     }
 
-    echo "<p>Strona {$paged}. Odwiedzono <b>{$posts_per_page}</b>.</p>";
-    echo "<p>Zlokalizowano <b>{$stats_located}</b> oraz <b>{$stats_to_be_located}</b> da się poprawić. </p>";
+    echo "<p>Strona {$paged} (po {$posts_per_page} na stronę). Odwiedzono <b>{$the_query->post_count} artykułów</b>.</p><br/>";
+    echo "<p>Wypowiedzi <b>{$stats_statements_num}</b>.</p>";
     echo "<p>Bez źródła jest <b>{$stats_no_source}</b> oraz <b>{$stats_non_browsable}</b> nie da się odwiedzić.</p>";
+    echo "<p>Zlokalizowano <b>{$stats_located}</b> oraz <b>{$stats_to_be_located}</b> da się poprawić. </p>";
 }
 
 

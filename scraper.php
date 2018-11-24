@@ -3,6 +3,7 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Goutte\Client;
+use GuzzleHttp\Exception\ConnectException;
 
 
 if ( ! function_exists('write_log')) {
@@ -29,6 +30,11 @@ function get_located_statement($statement, $url) {
         if (is_statement_in_content($statement_candidate, $content)) {
             return $statement_candidate;
         }
+        $statement_candidate = substr($statement, $strip_chars / 2, $statement_length - $strip_chars / 2);
+        if (is_statement_in_content($statement_candidate, $content)) {
+            return $statement_candidate;
+        }
+
         $strip_chars++;
     }
     return FALSE;
@@ -41,13 +47,19 @@ function is_statement_in_content($statement, $content) {
 
 
 function get_page_content($url) {
-    write_log('Getting page content');
+    //write_log('Getting page content');
     $client = new Client();
     // TODO: we should use lower level tool for fetching websites as we lack some low level info
-    $crawler = $client->request('GET', $url);
+    try {
+        $crawler = $client->request('GET', $url);
+    } catch (ConnectException $e) {
+        throw new URLFetchingException('Unable to connect to the URL, it is either incorrect or was denied');
+    } catch (Exception $e) {
+        throw new URLFetchingException($e);
+    }
     $firstNode = $crawler->getNode(0);
     if (!$firstNode) {
-        throw new URLFetchingException('Fetched document is empty, it might have been denied');
+        throw new URLFetchingException('Fetched document has no nodes, it might be incompatible type of site');
     }
 
     $document = $firstNode->ownerDocument;
@@ -70,4 +82,7 @@ function universalizeSpaces($text) {
     return $text;
 }
 
-class URLFetchingException extends Exception {}
+class URLFetchingException extends Exception {
+
+}
+

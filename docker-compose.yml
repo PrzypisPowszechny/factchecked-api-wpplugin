@@ -23,6 +23,8 @@ services:
     - ./:/var/www/html/wp-content/plugins/factchecked-api
     - ./docker/wp:/var/www/html/
     - ./docker/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    - ./docker/timeout.ini:/usr/local/etc/php/conf.d/timeout.ini
+    - ./docker/timeout.conf:/etc/apache2/conf-enabled/timeout.conf
     ports:
     - "8000:80"
     restart: always
