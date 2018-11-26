@@ -116,13 +116,16 @@ function locate_statements_page() {
 
     echo "<p>Lokalizowanie wypowiedzi na stronach źródłowych:</p>";
 
+    $stats_post_count = $the_query->post_count;
     $stats_statements_num = 0;
     $stats_located = 0;
     $stats_to_be_located = 0;
     $stats_no_source = 0;
     $stats_non_browsable = 0;
+    $i_post = 0;
 
     while ($the_query->have_posts()) {
+        $i_post++;
         $the_query->the_post();
         $main_source_url = get_post_meta(get_the_ID(), 'main-fc-source', true);
 
@@ -199,9 +202,13 @@ function locate_statements_page() {
             }
         }
         echo '</p>';
+
+        if ($i_post % 10) {
+            write_log("locate_statements_page: {$i_post} / {$stats_post_count} of posts processed");
+        }
     }
 
-    echo "<p>Strona {$paged} (po {$posts_per_page} na stronę). Odwiedzono <b>{$the_query->post_count} artykułów</b>.</p><br/>";
+    echo "<p>Strona {$paged} (po {$posts_per_page} na stronę). Odwiedzono <b>{$stats_post_count} artykułów</b>.</p><br/>";
     echo "<p>Wypowiedzi <b>{$stats_statements_num}</b>.</p>";
     echo "<p>Bez źródła jest <b>{$stats_no_source}</b> oraz <b>{$stats_non_browsable}</b> nie da się odwiedzić.</p>";
     echo "<p>Zlokalizowano <b>{$stats_located}</b> oraz <b>{$stats_to_be_located}</b> da się poprawić. </p>";
