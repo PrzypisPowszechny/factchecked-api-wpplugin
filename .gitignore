@@ -1,1 +1,8 @@
-/vendor
+vendor/
+composer
+
+docker/wp/
+docker/db_data/
+.idea/
+
+
